@@ -1,11 +1,8 @@
-<script setup>
-</script>
-
 <template>
   <div class="about-me">
     <h2>About Me</h2>
     <div class="profile">
-      <div class="avatar">👤</div>
+      <div class="avatar" role="img" aria-label="User avatar">👤</div>
       <div class="info">
         <h3>Welcome to my page!</h3>
         <p>
