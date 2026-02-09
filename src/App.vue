@@ -1,12 +1,13 @@
 <script setup>
 import { onMounted, watch, ref } from "vue";
 import { useGameState } from "./composables/useGameState";
+import { useGoldenCookie } from "./composables/useGoldenCookie";
 import { UPGRADES, calculateUpgradeCost } from "./utils/upgradeConfig";
 import { ACHIEVEMENTS, checkAchievements } from "./utils/achievementConfig";
 import SausageSite from "./components/SausageSite.vue";
 
 // Navigation state
-const currentPage = ref('cookies');
+const currentPage = ref("cookies");
 
 // Load initial state from localStorage
 const SAVE_KEY = "cookie_clicker_save";
@@ -14,10 +15,12 @@ const savedData = localStorage.getItem(SAVE_KEY);
 const initialState = savedData ? JSON.parse(savedData) : null;
 
 const game = useGameState(initialState);
+const goldenCookie = useGoldenCookie();
 
 // Start game on mount
 onMounted(() => {
-  game.startGame();
+  game.startGame(() => goldenCookie.goldenCookieBonus.value);
+  goldenCookie.startGoldenCookies();
 
   // Auto-save every 30 seconds
   setInterval(() => {
@@ -27,13 +30,14 @@ onMounted(() => {
 
 // Check for achievements whenever game state changes
 watch(
-  [game.totalClicks, game.totalCookiesEarned, game.cookiesPerSecond, game.upgrades],
+  [game.totalClicks, game.totalCookiesEarned, game.cookiesPerSecond, game.goldenCookiesCollected, game.upgrades],
   () => {
     const newlyUnlocked = checkAchievements(
       {
         totalClicks: game.totalClicks.value,
         totalCookiesEarned: game.totalCookiesEarned.value,
         cookiesPerSecond: game.cookiesPerSecond.value,
+        goldenCookiesCollected: game.goldenCookiesCollected.value,
         upgrades: game.upgrades,
       },
       game.unlockedAchievementIds.value
@@ -59,6 +63,13 @@ function handleReset() {
   }
 }
 
+function handleGoldenCookieClick() {
+  const bonus = goldenCookie.collectGoldenCookie();
+  if (bonus) {
+    game.goldenCookiesCollected.value += 1;
+  }
+}
+
 // Formatting helpers
 const formatNumber = (num) => Math.floor(num).toLocaleString();
 const formatCPS = (num) => num.toFixed(1);
@@ -67,9 +78,18 @@ const formatCPS = (num) => num.toFixed(1);
 <template>
   <div class="site-wrapper">
     <nav class="main-nav">
-      <button :class="{ active: currentPage === 'cookies' }" @click="currentPage = 'cookies'">Cookie Clicker</button>
-      <button :class="{ active: currentPage === 'sausages' }" @click="currentPage = 'sausages'">Sausage
-        Sanctuary</button>
+      <button
+        :class="{ active: currentPage === 'cookies' }"
+        @click="currentPage = 'cookies'"
+      >
+        Cookie Clicker
+      </button>
+      <button
+        :class="{ active: currentPage === 'sausages' }"
+        @click="currentPage = 'sausages'"
+      >
+        Sausage Sanctuary
+      </button>
     </nav>
 
     <div v-if="currentPage === 'cookies'" class="game-container">
@@ -91,7 +111,7 @@ const formatCPS = (num) => num.toFixed(1);
         <!-- Left Column: Clicking Area -->
         <section class="click-section">
           <div class="cookie-display">
-            <button @click="game.clickCookie" class="cookie-button">
+            <button @click="game.clickCookie(goldenCookie.goldenCookieBonus.value)" class="cookie-button">
               <pre class="ascii-art">
     .-"""""-.
   .'  o   o  '.
@@ -103,11 +123,15 @@ const formatCPS = (num) => num.toFixed(1);
     '-.....-'
               </pre>
             </button>
+            <div v-if="goldenCookie.goldenCookieBonusTimeRemaining.value > 0" class="bonus-indicator">
+              {{ goldenCookie.goldenCookieBonus.value }}x bonus ({{ goldenCookie.goldenCookieBonusTimeRemaining.value }}s)
+            </div>
           </div>
           <div class="click-stats">
             <p>Total Clicks: {{ formatNumber(game.totalClicks.value) }}</p>
             <p>Lifetime Cookies: {{ formatNumber(game.totalCookiesEarned.value) }}</p>
             <p>Click Power: {{ game.clickPower.value.toFixed(1) }}</p>
+            <p>Golden Cookies: {{ game.goldenCookiesCollected.value }}</p>
           </div>
           <div class="game-controls">
             <button @click="saveGame" class="control-btn">Save Game</button>
@@ -122,11 +146,17 @@ const formatCPS = (num) => num.toFixed(1);
           </div>
 
           <div class="shop-list">
-            <div v-for="upgrade in UPGRADES" :key="upgrade.id" class="upgrade-card" :class="{
-              'can-afford':
-                game.cookieCount.value >=
-                calculateUpgradeCost(upgrade.baseCost, game.upgrades[upgrade.id]),
-            }" @click="game.buyUpgrade(upgrade)">
+            <div
+              v-for="upgrade in UPGRADES"
+              :key="upgrade.id"
+              class="upgrade-card"
+              :class="{
+                'can-afford':
+                  game.cookieCount.value >=
+                  calculateUpgradeCost(upgrade.baseCost, game.upgrades[upgrade.id]),
+              }"
+              @click="game.buyUpgrade(upgrade)"
+            >
               <div class="upgrade-icon">{{ upgrade.icon }}</div>
               <div class="upgrade-info">
                 <div class="upgrade-name">
@@ -148,9 +178,15 @@ const formatCPS = (num) => num.toFixed(1);
           <div class="achievements-section">
             <h3>Achievements</h3>
             <div class="achievements-grid">
-              <div v-for="achievement in ACHIEVEMENTS" :key="achievement.id" class="achievement-icon"
-                :class="{ unlocked: game.unlockedAchievementIds.value.has(achievement.id) }"
-                :title="achievement.name + ': ' + achievement.description">
+              <div
+                v-for="achievement in ACHIEVEMENTS"
+                :key="achievement.id"
+                class="achievement-icon"
+                :class="{
+                  unlocked: game.unlockedAchievementIds.value.has(achievement.id),
+                }"
+                :title="achievement.name + ': ' + achievement.description"
+              >
                 {{ achievement.icon }}
               </div>
             </div>
@@ -158,9 +194,32 @@ const formatCPS = (num) => num.toFixed(1);
         </section>
       </main>
 
+      <!-- Golden Cookie -->
+      <div
+        v-if="goldenCookie.isGoldenCookieActive.value"
+        @click="handleGoldenCookieClick"
+        class="golden-cookie"
+        :style="{
+          left: goldenCookie.goldenCookiePosition.value.x + '%',
+          top: goldenCookie.goldenCookiePosition.value.y + '%',
+        }"
+      >
+        <pre class="golden-cookie-art">
+   _..._
+ .'     '.
+|  * *   |
+|   *    |
+ '._*_.'
+        </pre>
+      </div>
+
       <!-- Achievement Toast Notifications -->
       <TransitionGroup name="toast" tag="div" class="toast-container">
-        <div v-for="toast in game.newlyUnlockedAchievements.value" :key="toast.id" class="toast">
+        <div
+          v-for="toast in game.newlyUnlockedAchievements.value"
+          :key="toast.id"
+          class="toast"
+        >
           <span class="toast-icon">{{ toast.icon }}</span>
           <div class="toast-content">
             <div class="toast-title">Achievement</div>
@@ -528,5 +587,191 @@ const formatCPS = (num) => num.toFixed(1);
 .toast-leave-to {
   opacity: 0;
   transform: scale(0.95);
+}
+
+/* Golden Cookie */
+.golden-cookie {
+  position: fixed;
+  cursor: pointer;
+  z-index: 999;
+  animation: float 2s ease-in-out infinite;
+  transition: transform 0.1s ease;
+}
+
+.golden-cookie:hover {
+  transform: scale(1.1);
+}
+
+.golden-cookie-art {
+  color: #ffd700;
+  font-size: 1.2rem;
+  line-height: 1.2;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Bonus Indicator */
+.bonus-indicator {
+  margin-top: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  color: #000;
+  font-weight: 700;
+  font-size: 0.85rem;
+  border-radius: 4px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.4);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  .game-container {
+    padding: 1rem;
+  }
+
+  .game-header {
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .main-stats {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .stat-item .value {
+    font-size: 1.3rem;
+  }
+
+  .game-layout {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .sidebar {
+    max-height: none;
+    order: 2;
+  }
+
+  .click-section {
+    order: 1;
+  }
+
+  .cookie-button {
+    padding: 1rem 1.5rem;
+  }
+
+  .ascii-art {
+    font-size: 0.85rem;
+  }
+
+  .click-stats {
+    font-size: 0.85rem;
+  }
+
+  .game-controls {
+    flex-wrap: wrap;
+  }
+
+  .control-btn {
+    flex: 1;
+    min-width: 120px;
+  }
+
+  .achievements-grid {
+    grid-template-columns: repeat(auto-fill, minmax(32px, 1fr));
+  }
+
+  .achievement-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 1.1rem;
+  }
+
+  .toast-container {
+    bottom: 1rem;
+    right: 1rem;
+    left: 1rem;
+  }
+
+  .toast {
+    min-width: unset;
+  }
+
+  .golden-cookie-art {
+    font-size: 1rem;
+  }
+
+  .main-nav {
+    padding: 0.5rem;
+  }
+
+  .main-nav button {
+    font-size: 0.85rem;
+    padding: 0.4rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-header h1 {
+    font-size: 1.5rem;
+  }
+
+  .stat-item .label {
+    font-size: 0.7rem;
+  }
+
+  .stat-item .value {
+    font-size: 1.1rem;
+  }
+
+  .cookie-button {
+    padding: 0.8rem 1.2rem;
+  }
+
+  .ascii-art {
+    font-size: 0.7rem;
+  }
+
+  .upgrade-card {
+    padding: 0.6rem;
+  }
+
+  .upgrade-icon {
+    font-size: 1.3rem;
+    width: 2rem;
+  }
+
+  .upgrade-name {
+    font-size: 0.85rem;
+  }
+
+  .upgrade-cost,
+  .upgrade-desc {
+    font-size: 0.7rem;
+  }
+
+  .bonus-indicator {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+  }
 }
 </style>

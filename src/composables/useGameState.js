@@ -12,6 +12,7 @@ export function useGameState(initialState = null) {
   const cookieCount = ref(initialState?.cookieCount ?? 0);
   const totalCookiesEarned = ref(initialState?.totalCookiesEarned ?? 0);
   const totalClicks = ref(initialState?.totalClicks ?? 0);
+  const goldenCookiesCollected = ref(initialState?.goldenCookiesCollected ?? 0);
   const playTime = ref(initialState?.playTime ?? 0);
   const isGameRunning = ref(true);
 
@@ -22,6 +23,9 @@ export function useGameState(initialState = null) {
     farm: initialState?.upgrades?.farm ?? 0,
     mine: initialState?.upgrades?.mine ?? 0,
     factory: initialState?.upgrades?.factory ?? 0,
+    bank: initialState?.upgrades?.bank ?? 0,
+    temple: initialState?.upgrades?.temple ?? 0,
+    wizard_tower: initialState?.upgrades?.wizard_tower ?? 0,
   });
 
   // Achievement IDs that have been unlocked
@@ -58,10 +62,11 @@ export function useGameState(initialState = null) {
   // Play time interval reference
   let playTimeInterval = null;
 
-  // Handle manual cookie click
-  function clickCookie() {
-    cookieCount.value += clickPower.value;
-    totalCookiesEarned.value += clickPower.value;
+  // Handle manual cookie click (with optional multiplier for golden cookie)
+  function clickCookie(multiplier = 1) {
+    const earned = clickPower.value * multiplier;
+    cookieCount.value += earned;
+    totalCookiesEarned.value += earned;
     totalClicks.value += 1;
   }
 
@@ -80,21 +85,21 @@ export function useGameState(initialState = null) {
     return false;
   }
 
-  // Auto-clicker tick function
-  function autoClickerTick() {
+  // Auto-clicker tick function (with optional multiplier for golden cookie)
+  function autoClickerTick(multiplier = 1) {
     if (cookiesPerTick.value > 0) {
-      const earned = cookiesPerTick.value;
+      const earned = cookiesPerTick.value * multiplier;
       cookieCount.value += earned;
       totalCookiesEarned.value += earned;
     }
   }
 
-  // Start the auto-clicker
-  function startAutoClicker() {
+  // Start the auto-clicker (with optional multiplier function for golden cookie)
+  function startAutoClicker(getMultiplier = () => 1) {
     if (autoClickerInterval) return;
 
     autoClickerInterval = setInterval(() => {
-      autoClickerTick();
+      autoClickerTick(getMultiplier());
     }, TICK_RATE);
   }
 
@@ -139,6 +144,7 @@ export function useGameState(initialState = null) {
     cookieCount.value = 0;
     totalCookiesEarned.value = 0;
     totalClicks.value = 0;
+    goldenCookiesCollected.value = 0;
     playTime.value = 0;
 
     Object.keys(upgrades).forEach((key) => {
@@ -156,10 +162,10 @@ export function useGameState(initialState = null) {
     stopPlayTimeTracker();
   }
 
-  // Resume the game
-  function resumeGame() {
+  // Resume the game (with optional multiplier function for golden cookie)
+  function resumeGame(getMultiplier = () => 1) {
     isGameRunning.value = true;
-    startAutoClicker();
+    startAutoClicker(getMultiplier);
     startPlayTimeTracker();
   }
 
@@ -169,6 +175,7 @@ export function useGameState(initialState = null) {
       cookieCount: cookieCount.value,
       totalCookiesEarned: totalCookiesEarned.value,
       totalClicks: totalClicks.value,
+      goldenCookiesCollected: goldenCookiesCollected.value,
       playTime: playTime.value,
       upgrades: { ...upgrades },
       unlockedAchievementIds: Array.from(unlockedAchievementIds.value),
@@ -176,9 +183,9 @@ export function useGameState(initialState = null) {
     };
   }
 
-  // Start all game systems
-  function startGame() {
-    startAutoClicker();
+  // Start all game systems (with optional multiplier function for golden cookie)
+  function startGame(getMultiplier = () => 1) {
+    startAutoClicker(getMultiplier);
     startPlayTimeTracker();
     isGameRunning.value = true;
   }
@@ -194,6 +201,7 @@ export function useGameState(initialState = null) {
     cookieCount,
     totalCookiesEarned,
     totalClicks,
+    goldenCookiesCollected,
     playTime,
     upgrades,
     cookiesPerSecond,

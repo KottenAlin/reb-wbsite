@@ -7,6 +7,7 @@ export const UPGRADES = [
     baseCost: 15,
     cps: 0.1,
     icon: ">_",
+    tier: 1,
   },
   {
     id: "grandma",
@@ -15,6 +16,7 @@ export const UPGRADES = [
     baseCost: 100,
     cps: 1,
     icon: "&",
+    tier: 1,
   },
   {
     id: "farm",
@@ -23,6 +25,7 @@ export const UPGRADES = [
     baseCost: 1100,
     cps: 8,
     icon: "#",
+    tier: 2,
   },
   {
     id: "mine",
@@ -31,6 +34,7 @@ export const UPGRADES = [
     baseCost: 12000,
     cps: 47,
     icon: "%",
+    tier: 2,
   },
   {
     id: "factory",
@@ -39,6 +43,34 @@ export const UPGRADES = [
     baseCost: 130000,
     cps: 260,
     icon: "=",
+    tier: 3,
+  },
+  {
+    id: "bank",
+    name: "Bank",
+    description: "Generates cookie interest continuously",
+    baseCost: 1400000,
+    cps: 1400,
+    icon: "@",
+    tier: 3,
+  },
+  {
+    id: "temple",
+    name: "Temple",
+    description: "Pray to the cookie gods for blessings",
+    baseCost: 20000000,
+    cps: 7800,
+    icon: "^",
+    tier: 4,
+  },
+  {
+    id: "wizard_tower",
+    name: "Wizard Tower",
+    description: "Summon cookies from other dimensions",
+    baseCost: 330000000,
+    cps: 44000,
+    icon: "!",
+    tier: 4,
   },
 ];
 
@@ -60,4 +92,25 @@ export function getUpgradesWithCosts(ownedUpgrades) {
       ownedUpgrades[upgrade.id] || 0,
     ),
   }));
+}
+
+// Group upgrades by tier
+export function getUpgradesByTier(ownedUpgrades) {
+  const tiers = {};
+  
+  UPGRADES.forEach((upgrade) => {
+    if (!tiers[upgrade.tier]) {
+      tiers[upgrade.tier] = [];
+    }
+    tiers[upgrade.tier].push({
+      ...upgrade,
+      quantity: ownedUpgrades[upgrade.id] || 0,
+      currentCost: calculateUpgradeCost(
+        upgrade.baseCost,
+        ownedUpgrades[upgrade.id] || 0,
+      ),
+    });
+  });
+  
+  return tiers;
 }

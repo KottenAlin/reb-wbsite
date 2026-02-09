@@ -70,6 +70,34 @@ export const ACHIEVEMENTS = [
     icon: "|||",
     check: (state) => state.cookiesPerSecond >= 100,
   },
+  {
+    id: "cookie_industry",
+    name: "Cookie Industry",
+    description: "Reach 1,000 cookies per second",
+    icon: "[=]",
+    check: (state) => state.cookiesPerSecond >= 1000,
+  },
+  {
+    id: "cookie_tycoon",
+    name: "Cookie Tycoon",
+    description: "Reach 10,000 cookies per second",
+    icon: "{$}",
+    check: (state) => state.cookiesPerSecond >= 10000,
+  },
+  {
+    id: "golden_touch",
+    name: "Golden Touch",
+    description: "Click your first golden cookie",
+    icon: "[G]",
+    check: (state) => state.goldenCookiesCollected >= 1,
+  },
+  {
+    id: "golden_hoarder",
+    name: "Golden Hoarder",
+    description: "Collect 50 golden cookies",
+    icon: "<G>",
+    check: (state) => state.goldenCookiesCollected >= 50,
+  },
 ];
 
 // Helper function to calculate total upgrades owned
