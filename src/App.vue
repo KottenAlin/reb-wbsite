@@ -6,7 +6,7 @@ import { ACHIEVEMENTS, checkAchievements } from "./utils/achievementConfig";
 import SausageSite from "./components/SausageSite.vue";
 
 // Navigation state
-const currentPage = ref('cookies');
+const currentPage = ref("cookies");
 
 // Load initial state from localStorage
 const SAVE_KEY = "cookie_clicker_save";
@@ -67,9 +67,18 @@ const formatCPS = (num) => num.toFixed(1);
 <template>
   <div class="site-wrapper">
     <nav class="main-nav">
-      <button :class="{ active: currentPage === 'cookies' }" @click="currentPage = 'cookies'">Cookie Clicker</button>
-      <button :class="{ active: currentPage === 'sausages' }" @click="currentPage = 'sausages'">Sausage
-        Sanctuary</button>
+      <button
+        :class="{ active: currentPage === 'cookies' }"
+        @click="currentPage = 'cookies'"
+      >
+        Cookie Clicker
+      </button>
+      <button
+        :class="{ active: currentPage === 'sausages' }"
+        @click="currentPage = 'sausages'"
+      >
+        Sausage Sanctuary
+      </button>
     </nav>
 
     <div v-if="currentPage === 'cookies'" class="game-container">
@@ -122,11 +131,17 @@ const formatCPS = (num) => num.toFixed(1);
           </div>
 
           <div class="shop-list">
-            <div v-for="upgrade in UPGRADES" :key="upgrade.id" class="upgrade-card" :class="{
-              'can-afford':
-                game.cookieCount.value >=
-                calculateUpgradeCost(upgrade.baseCost, game.upgrades[upgrade.id]),
-            }" @click="game.buyUpgrade(upgrade)">
+            <div
+              v-for="upgrade in UPGRADES"
+              :key="upgrade.id"
+              class="upgrade-card"
+              :class="{
+                'can-afford':
+                  game.cookieCount.value >=
+                  calculateUpgradeCost(upgrade.baseCost, game.upgrades[upgrade.id]),
+              }"
+              @click="game.buyUpgrade(upgrade)"
+            >
               <div class="upgrade-icon">{{ upgrade.icon }}</div>
               <div class="upgrade-info">
                 <div class="upgrade-name">
@@ -148,9 +163,15 @@ const formatCPS = (num) => num.toFixed(1);
           <div class="achievements-section">
             <h3>Achievements</h3>
             <div class="achievements-grid">
-              <div v-for="achievement in ACHIEVEMENTS" :key="achievement.id" class="achievement-icon"
-                :class="{ unlocked: game.unlockedAchievementIds.value.has(achievement.id) }"
-                :title="achievement.name + ': ' + achievement.description">
+              <div
+                v-for="achievement in ACHIEVEMENTS"
+                :key="achievement.id"
+                class="achievement-icon"
+                :class="{
+                  unlocked: game.unlockedAchievementIds.value.has(achievement.id),
+                }"
+                :title="achievement.name + ': ' + achievement.description"
+              >
                 {{ achievement.icon }}
               </div>
             </div>
@@ -160,7 +181,11 @@ const formatCPS = (num) => num.toFixed(1);
 
       <!-- Achievement Toast Notifications -->
       <TransitionGroup name="toast" tag="div" class="toast-container">
-        <div v-for="toast in game.newlyUnlockedAchievements.value" :key="toast.id" class="toast">
+        <div
+          v-for="toast in game.newlyUnlockedAchievements.value"
+          :key="toast.id"
+          class="toast"
+        >
           <span class="toast-icon">{{ toast.icon }}</span>
           <div class="toast-content">
             <div class="toast-title">Achievement</div>

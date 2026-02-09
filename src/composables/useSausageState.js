@@ -1,8 +1,5 @@
 import { ref, reactive, computed, onUnmounted } from "vue";
-import {
-  SAUSAGE_UPGRADES,
-  calculateSausageUpgradeCost,
-} from "../utils/sausageUpgradeConfig.js";
+import { SAUSAGE_UPGRADES, calculateSausageUpgradeCost } from "../utils/sausageUpgradeConfig.js";
 
 // Base click power (sausages per manual click)
 export const BASE_CLICK_POWER = 1;
