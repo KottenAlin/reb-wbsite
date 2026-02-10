@@ -8,7 +8,6 @@ import SausageSite from "./components/SausageSite.vue";
 
 // Navigation state
 const currentPage = ref("cookies");
-const currentPage = ref("cookies");
 
 // Load initial state from localStorage
 const SAVE_KEY = "cookie_clicker_save";
@@ -31,7 +30,13 @@ onMounted(() => {
 
 // Check for achievements whenever game state changes
 watch(
-  [game.totalClicks, game.totalCookiesEarned, game.cookiesPerSecond, game.goldenCookiesCollected, game.upgrades],
+  [
+    game.totalClicks,
+    game.totalCookiesEarned,
+    game.cookiesPerSecond,
+    game.goldenCookiesCollected,
+    game.upgrades,
+  ],
   () => {
     const newlyUnlocked = checkAchievements(
       {
@@ -91,18 +96,6 @@ const formatCPS = (num) => num.toFixed(1);
       >
         Sausage Sanctuary
       </button>
-      <button
-        :class="{ active: currentPage === 'cookies' }"
-        @click="currentPage = 'cookies'"
-      >
-        Cookie Clicker
-      </button>
-      <button
-        :class="{ active: currentPage === 'sausages' }"
-        @click="currentPage = 'sausages'"
-      >
-        Sausage Sanctuary
-      </button>
     </nav>
 
     <div v-if="currentPage === 'cookies'" class="game-container">
@@ -124,7 +117,10 @@ const formatCPS = (num) => num.toFixed(1);
         <!-- Left Column: Clicking Area -->
         <section class="click-section">
           <div class="cookie-display">
-            <button @click="game.clickCookie(goldenCookie.goldenCookieBonus.value)" class="cookie-button">
+            <button
+              @click="game.clickCookie(goldenCookie.goldenCookieBonus.value)"
+              class="cookie-button"
+            >
               <pre class="ascii-art">
     .-"""""-.
   .'  o   o  '.
@@ -136,8 +132,13 @@ const formatCPS = (num) => num.toFixed(1);
     '-.....-'
               </pre>
             </button>
-            <div v-if="goldenCookie.goldenCookieBonusTimeRemaining.value > 0" class="bonus-indicator">
-              {{ goldenCookie.goldenCookieBonus.value }}x bonus ({{ goldenCookie.goldenCookieBonusTimeRemaining.value }}s)
+            <div
+              v-if="goldenCookie.goldenCookieBonusTimeRemaining.value > 0"
+              class="bonus-indicator"
+            >
+              {{ goldenCookie.goldenCookieBonus.value }}x bonus ({{
+                goldenCookie.goldenCookieBonusTimeRemaining.value
+              }}s)
             </div>
           </div>
           <div class="click-stats">
@@ -159,17 +160,6 @@ const formatCPS = (num) => num.toFixed(1);
           </div>
 
           <div class="shop-list">
-            <div
-              v-for="upgrade in UPGRADES"
-              :key="upgrade.id"
-              class="upgrade-card"
-              :class="{
-                'can-afford':
-                  game.cookieCount.value >=
-                  calculateUpgradeCost(upgrade.baseCost, game.upgrades[upgrade.id]),
-              }"
-              @click="game.buyUpgrade(upgrade)"
-            >
             <div
               v-for="upgrade in UPGRADES"
               :key="upgrade.id"
@@ -211,15 +201,6 @@ const formatCPS = (num) => num.toFixed(1);
                 }"
                 :title="achievement.name + ': ' + achievement.description"
               >
-              <div
-                v-for="achievement in ACHIEVEMENTS"
-                :key="achievement.id"
-                class="achievement-icon"
-                :class="{
-                  unlocked: game.unlockedAchievementIds.value.has(achievement.id),
-                }"
-                :title="achievement.name + ': ' + achievement.description"
-              >
                 {{ achievement.icon }}
               </div>
             </div>
@@ -248,11 +229,6 @@ const formatCPS = (num) => num.toFixed(1);
 
       <!-- Achievement Toast Notifications -->
       <TransitionGroup name="toast" tag="div" class="toast-container">
-        <div
-          v-for="toast in game.newlyUnlockedAchievements.value"
-          :key="toast.id"
-          class="toast"
-        >
         <div
           v-for="toast in game.newlyUnlockedAchievements.value"
           :key="toast.id"
@@ -648,7 +624,8 @@ const formatCPS = (num) => num.toFixed(1);
 }
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px);
   }
   50% {
@@ -671,7 +648,8 @@ const formatCPS = (num) => num.toFixed(1);
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {
