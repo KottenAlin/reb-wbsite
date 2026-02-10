@@ -136,11 +136,11 @@ graph TD
     D --> E[Achievement Unlocked?]
     E -->|Yes| F[Show Notification]
     C --> G[UI Re-render]
-    
+
     H[Timer Tick 1s] --> I[useAutoCookies]
     I --> J[Add CPS to Cookie Count]
     J --> C
-    
+
     K[User Buys Upgrade] --> L[useUpgrades]
     L --> M[Check Affordability]
     M -->|Yes| N[Deduct Cost]
@@ -158,18 +158,18 @@ sequenceDiagram
     participant S as Game State
     participant T as Timer
     participant L as localStorage
-    
+
     U->>C: Click cookie
     C->>S: Add cookies
     S->>S: Check achievements
     S->>C: Update display
-    
+
     loop Every 1 second
         T->>S: Add CPS
         S->>C: Update displays
         S->>L: Auto-save
     end
-    
+
     U->>C: Purchase upgrade
     C->>S: Verify & buy
     S->>S: Recalculate CPS

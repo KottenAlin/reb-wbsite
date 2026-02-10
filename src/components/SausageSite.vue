@@ -1,8 +1,14 @@
 <script setup>
 import { onMounted, watch, ref } from "vue";
 import { useSausageState } from "../composables/useSausageState";
-import { SAUSAGE_UPGRADES, calculateSausageUpgradeCost } from "../utils/sausageUpgradeConfig";
-import { SAUSAGE_ACHIEVEMENTS, checkSausageAchievements } from "../utils/sausageAchievementConfig";
+import {
+  SAUSAGE_UPGRADES,
+  calculateSausageUpgradeCost,
+} from "../utils/sausageUpgradeConfig";
+import {
+  SAUSAGE_ACHIEVEMENTS,
+  checkSausageAchievements,
+} from "../utils/sausageAchievementConfig";
 
 const SAVE_KEY = "sausage_clicker_save";
 const savedData = localStorage.getItem(SAVE_KEY);
@@ -103,11 +109,17 @@ const formatSPS = (num) => num.toFixed(1);
         </div>
 
         <div class="shop-list">
-          <div v-for="upgrade in SAUSAGE_UPGRADES" :key="upgrade.id" class="upgrade-card" :class="{
-            'can-afford':
-              game.sausageCount.value >=
-              calculateSausageUpgradeCost(upgrade.baseCost, game.upgrades[upgrade.id]),
-          }" @click="game.buyUpgrade(upgrade)">
+          <div
+            v-for="upgrade in SAUSAGE_UPGRADES"
+            :key="upgrade.id"
+            class="upgrade-card"
+            :class="{
+              'can-afford':
+                game.sausageCount.value >=
+                calculateSausageUpgradeCost(upgrade.baseCost, game.upgrades[upgrade.id]),
+            }"
+            @click="game.buyUpgrade(upgrade)"
+          >
             <div class="upgrade-icon">{{ upgrade.icon }}</div>
             <div class="upgrade-info">
               <div class="upgrade-name">
@@ -117,7 +129,10 @@ const formatSPS = (num) => num.toFixed(1);
                 Cost:
                 {{
                   formatNumber(
-                    calculateSausageUpgradeCost(upgrade.baseCost, game.upgrades[upgrade.id])
+                    calculateSausageUpgradeCost(
+                      upgrade.baseCost,
+                      game.upgrades[upgrade.id]
+                    )
                   )
                 }}
               </div>
@@ -129,9 +144,13 @@ const formatSPS = (num) => num.toFixed(1);
         <div class="achievements-section">
           <h3>Sausage Achievements</h3>
           <div class="achievements-grid">
-            <div v-for="achievement in SAUSAGE_ACHIEVEMENTS" :key="achievement.id" class="achievement-icon"
+            <div
+              v-for="achievement in SAUSAGE_ACHIEVEMENTS"
+              :key="achievement.id"
+              class="achievement-icon"
               :class="{ unlocked: game.unlockedAchievementIds.value.has(achievement.id) }"
-              :title="achievement.name + ': ' + achievement.description">
+              :title="achievement.name + ': ' + achievement.description"
+            >
               {{ achievement.icon }}
             </div>
           </div>
@@ -140,7 +159,11 @@ const formatSPS = (num) => num.toFixed(1);
     </main>
 
     <TransitionGroup name="toast" tag="div" class="toast-container">
-      <div v-for="toast in game.newlyUnlockedAchievements.value" :key="toast.id" class="toast">
+      <div
+        v-for="toast in game.newlyUnlockedAchievements.value"
+        :key="toast.id"
+        class="toast"
+      >
         <span class="toast-icon">{{ toast.icon }}</span>
         <div class="toast-content">
           <div class="toast-title">Achievement</div>
