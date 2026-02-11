@@ -5,6 +5,7 @@ import {
   calculateClickPowerBonus,
   getGoldenCookieModifiers 
 } from "../utils/specialUpgradeConfig.js";
+import { calculatePrestigeMultiplier } from "./usePrestige.js";
 
 // Base click power (cookies per manual click)
 export const BASE_CLICK_POWER = 1;
@@ -31,6 +32,11 @@ export function useGameState(initialState = null) {
 
   // Special upgrades (one-time purchases)
   const specialUpgrades = reactive(initialState?.specialUpgrades ?? {});
+
+  // Prestige data
+  const prestigePoints = ref(initialState?.prestigePoints ?? 0);
+  const totalPrestigePoints = ref(initialState?.totalPrestigePoints ?? 0);
+  const prestigeUpgrades = reactive(initialState?.prestigeUpgrades ?? {});
 
   // Upgrade quantities (key-value pairs)
   const upgrades = reactive({
@@ -60,8 +66,12 @@ export function useGameState(initialState = null) {
     }, 0);
     
     // Apply special upgrade multipliers
-    const multiplier = calculateCPSMultiplier(specialUpgrades);
-    return baseCPS * multiplier;
+    const specialMultiplier = calculateCPSMultiplier(specialUpgrades);
+    
+    // Apply prestige multiplier
+    const prestigeMultiplier = calculatePrestigeMultiplier(totalPrestigePoints.value, prestigeUpgrades);
+    
+    return baseCPS * specialMultiplier * prestigeMultiplier;
   });
 
   // Calculate cookies per auto-tick (TICK_RATE)
@@ -235,10 +245,13 @@ export function useGameState(initialState = null) {
       playTime: playTime.value,
       upgrades: { ...upgrades },
       specialUpgrades: { ...specialUpgrades },
+      prestigeLevel: prestigeLevel.value,
+      prestigePoints: prestigePoints.value,
+      totalPrestigePoints: totalPrestigePoints.value,
+      prestigeUpgrades: { ...prestigeUpgrades },
       unlockedAchievementIds: Array.from(unlockedAchievementIds.value),
       speedClickRecord: speedClickRecord.value,
       clickComboRecord: clickComboRecord.value,
-      prestigeLevel: prestigeLevel.value,
       timestamp: Date.now(),
     };
   }
@@ -265,6 +278,10 @@ export function useGameState(initialState = null) {
     playTime,
     upgrades,
     specialUpgrades,
+    prestigeLevel,
+    prestigePoints,
+    totalPrestigePoints,
+    prestigeUpgrades,
     cookiesPerSecond,
     cookiesPerTick,
     clickPower,
@@ -273,7 +290,6 @@ export function useGameState(initialState = null) {
     newlyUnlockedAchievements,
     speedClickRecord,
     clickComboRecord,
-    prestigeLevel,
 
     // Methods
     clickCookie,
