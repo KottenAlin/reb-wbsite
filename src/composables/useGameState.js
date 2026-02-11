@@ -1,5 +1,10 @@
 import { ref, reactive, computed, onUnmounted } from "vue";
 import { UPGRADES, calculateUpgradeCost } from "../utils/upgradeConfig.js";
+import { 
+  calculateCPSMultiplier, 
+  calculateClickPowerBonus,
+  getGoldenCookieModifiers 
+} from "../utils/specialUpgradeConfig.js";
 
 // Base click power (cookies per manual click)
 export const BASE_CLICK_POWER = 1;
@@ -24,6 +29,9 @@ export function useGameState(initialState = null) {
   // Click tracking for speed/combo achievements
   const recentClicks = ref([]);
 
+  // Special upgrades (one-time purchases)
+  const specialUpgrades = reactive(initialState?.specialUpgrades ?? {});
+
   // Upgrade quantities (key-value pairs)
   const upgrades = reactive({
     cursor: initialState?.upgrades?.cursor ?? 0,
@@ -46,10 +54,14 @@ export function useGameState(initialState = null) {
 
   // Calculate cookies per second (CPS) from all upgrades
   const cookiesPerSecond = computed(() => {
-    return UPGRADES.reduce((total, upgrade) => {
+    const baseCPS = UPGRADES.reduce((total, upgrade) => {
       const quantity = upgrades[upgrade.id] || 0;
       return total + quantity * upgrade.cps;
     }, 0);
+    
+    // Apply special upgrade multipliers
+    const multiplier = calculateCPSMultiplier(specialUpgrades);
+    return baseCPS * multiplier;
   });
 
   // Calculate cookies per auto-tick (TICK_RATE)
@@ -57,11 +69,12 @@ export function useGameState(initialState = null) {
     return cookiesPerSecond.value / (1000 / TICK_RATE);
   });
 
-  // Calculate click power (base + bonus from upgrades)
+  // Calculate click power (base + bonus from upgrades + special upgrades)
   const clickPower = computed(() => {
     // Click power increases with upgrades (1 base + 0.1 for each cursor)
     const cursorBonus = (upgrades.cursor || 0) * 0.1;
-    return BASE_CLICK_POWER + cursorBonus;
+    const specialBonus = calculateClickPowerBonus(specialUpgrades);
+    return BASE_CLICK_POWER + cursorBonus + specialBonus;
   });
 
   // Auto-clicker interval reference
@@ -110,6 +123,17 @@ export function useGameState(initialState = null) {
       return true;
     }
     return false;
+  }
+
+  // Handle special upgrade purchase
+  function buySpecialUpgrade(upgrade) {
+    if (specialUpgrades[upgrade.id] || cookieCount.value < upgrade.cost) {
+      return false;
+    }
+    
+    cookieCount.value -= upgrade.cost;
+    specialUpgrades[upgrade.id] = true;
+    return true;
   }
 
   // Auto-clicker tick function (with optional multiplier for golden cookie)
@@ -174,11 +198,14 @@ export function useGameState(initialState = null) {
     goldenCookiesCollected.value = 0;
     playTime.value = 0;
     recentClicks.value = [];
-    // Don't reset records and prestige level - they persist
+    // Don't reset records, prestige level, and special upgrades - they persist
 
     Object.keys(upgrades).forEach((key) => {
       upgrades[key] = 0;
     });
+
+    // Don't reset special upgrades on normal reset
+    // They persist across prestiges
 
     unlockedAchievementIds.value = new Set();
     newlyUnlockedAchievements.value = [];
@@ -207,6 +234,7 @@ export function useGameState(initialState = null) {
       goldenCookiesCollected: goldenCookiesCollected.value,
       playTime: playTime.value,
       upgrades: { ...upgrades },
+      specialUpgrades: { ...specialUpgrades },
       unlockedAchievementIds: Array.from(unlockedAchievementIds.value),
       speedClickRecord: speedClickRecord.value,
       clickComboRecord: clickComboRecord.value,
@@ -236,6 +264,7 @@ export function useGameState(initialState = null) {
     goldenCookiesCollected,
     playTime,
     upgrades,
+    specialUpgrades,
     cookiesPerSecond,
     cookiesPerTick,
     clickPower,
@@ -256,5 +285,6 @@ export function useGameState(initialState = null) {
     startGame,
     getSerializableState,
     buyUpgrade,
+    buySpecialUpgrade,
   };
 }
