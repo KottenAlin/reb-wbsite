@@ -16,6 +16,14 @@ export function useGameState(initialState = null) {
   const playTime = ref(initialState?.playTime ?? 0);
   const isGameRunning = ref(true);
 
+  // New state for achievements
+  const speedClickRecord = ref(initialState?.speedClickRecord ?? 0);
+  const clickComboRecord = ref(initialState?.clickComboRecord ?? 0);
+  const prestigeLevel = ref(initialState?.prestigeLevel ?? 0);
+
+  // Click tracking for speed/combo achievements
+  const recentClicks = ref([]);
+
   // Upgrade quantities (key-value pairs)
   const upgrades = reactive({
     cursor: initialState?.upgrades?.cursor ?? 0,
@@ -68,6 +76,25 @@ export function useGameState(initialState = null) {
     cookieCount.value += earned;
     totalCookiesEarned.value += earned;
     totalClicks.value += 1;
+
+    // Track click timing for speed/combo achievements
+    const now = Date.now();
+    recentClicks.value.push(now);
+
+    // Remove clicks older than 10 seconds
+    recentClicks.value = recentClicks.value.filter(time => now - time <= 10000);
+
+    // Check speed click (10 clicks in 1 second)
+    const clicksInLastSecond = recentClicks.value.filter(time => now - time <= 1000).length;
+    if (clicksInLastSecond > speedClickRecord.value) {
+      speedClickRecord.value = clicksInLastSecond;
+    }
+
+    // Check click combo (clicks in last 10 seconds)
+    const clicksInLast10Seconds = recentClicks.value.length;
+    if (clicksInLast10Seconds > clickComboRecord.value) {
+      clickComboRecord.value = clicksInLast10Seconds;
+    }
   }
 
   // Handle upgrade purchase
@@ -146,6 +173,8 @@ export function useGameState(initialState = null) {
     totalClicks.value = 0;
     goldenCookiesCollected.value = 0;
     playTime.value = 0;
+    recentClicks.value = [];
+    // Don't reset records and prestige level - they persist
 
     Object.keys(upgrades).forEach((key) => {
       upgrades[key] = 0;
@@ -179,6 +208,9 @@ export function useGameState(initialState = null) {
       playTime: playTime.value,
       upgrades: { ...upgrades },
       unlockedAchievementIds: Array.from(unlockedAchievementIds.value),
+      speedClickRecord: speedClickRecord.value,
+      clickComboRecord: clickComboRecord.value,
+      prestigeLevel: prestigeLevel.value,
       timestamp: Date.now(),
     };
   }
@@ -210,6 +242,9 @@ export function useGameState(initialState = null) {
     isGameRunning,
     unlockedAchievementIds,
     newlyUnlockedAchievements,
+    speedClickRecord,
+    clickComboRecord,
+    prestigeLevel,
 
     // Methods
     clickCookie,
