@@ -1,10 +1,14 @@
 // Achievement configuration for the cookie clicker game
-export const ACHIEVEMENTS = [
+import { EXTENDED_ACHIEVEMENTS } from './extendedAchievementConfig.js';
+
+// Base achievements (early game)
+export const BASE_ACHIEVEMENTS = [
   {
     id: "first_click",
     name: "First Steps",
     description: "Click the cookie once",
     icon: "[!]",
+    category: "special",
     check: (state) => state.totalClicks >= 1,
   },
   {
@@ -12,13 +16,15 @@ export const ACHIEVEMENTS = [
     name: "Cookie Rookie",
     description: "Click the cookie 100 times",
     icon: "[1]",
+    category: "special",
     check: (state) => state.totalClicks >= 100,
   },
   {
     id: "click_master",
     name: "Click Master",
     description: "Click the cookie 1,000 times",
-    icon: "[*]",
+    icon: "[**]",
+    category: "special",
     check: (state) => state.totalClicks >= 1000,
   },
   {
@@ -26,6 +32,7 @@ export const ACHIEVEMENTS = [
     name: "Cookie Collector",
     description: "Earn 1,000 total cookies",
     icon: "(o)",
+    category: "collection",
     check: (state) => state.totalCookiesEarned >= 1000,
   },
   {
@@ -33,6 +40,7 @@ export const ACHIEVEMENTS = [
     name: "Wealthy Baker",
     description: "Earn 1,000,000 total cookies",
     icon: "[$]",
+    category: "collection",
     check: (state) => state.totalCookiesEarned >= 1000000,
   },
   {
@@ -40,6 +48,7 @@ export const ACHIEVEMENTS = [
     name: "Cookie Billionaire",
     description: "Earn 1,000,000,000 total cookies",
     icon: "<>",
+    category: "collection",
     check: (state) => state.totalCookiesEarned >= 1000000000,
   },
   {
@@ -47,6 +56,7 @@ export const ACHIEVEMENTS = [
     name: "Upgrade Beginner",
     description: "Buy your first upgrade",
     icon: "[+]",
+    category: "upgrades",
     check: (state) => getTotalUpgrades(state.upgrades) >= 1,
   },
   {
@@ -54,6 +64,7 @@ export const ACHIEVEMENTS = [
     name: "Upgrade Master",
     description: "Own 50 total upgrades",
     icon: "{+}",
+    category: "upgrades",
     check: (state) => getTotalUpgrades(state.upgrades) >= 50,
   },
   {
@@ -61,6 +72,7 @@ export const ACHIEVEMENTS = [
     name: "Production Power",
     description: "Reach 10 cookies per second",
     icon: ">>",
+    category: "production",
     check: (state) => state.cookiesPerSecond >= 10,
   },
   {
@@ -68,6 +80,7 @@ export const ACHIEVEMENTS = [
     name: "Cookie Empire",
     description: "Reach 100 cookies per second",
     icon: "|||",
+    category: "production",
     check: (state) => state.cookiesPerSecond >= 100,
   },
   {
@@ -75,6 +88,7 @@ export const ACHIEVEMENTS = [
     name: "Cookie Industry",
     description: "Reach 1,000 cookies per second",
     icon: "[=]",
+    category: "production",
     check: (state) => state.cookiesPerSecond >= 1000,
   },
   {
@@ -82,6 +96,7 @@ export const ACHIEVEMENTS = [
     name: "Cookie Tycoon",
     description: "Reach 10,000 cookies per second",
     icon: "{$}",
+    category: "production",
     check: (state) => state.cookiesPerSecond >= 10000,
   },
   {
@@ -89,6 +104,7 @@ export const ACHIEVEMENTS = [
     name: "Golden Touch",
     description: "Click your first golden cookie",
     icon: "[G]",
+    category: "special",
     check: (state) => state.goldenCookiesCollected >= 1,
   },
   {
@@ -96,9 +112,13 @@ export const ACHIEVEMENTS = [
     name: "Golden Hoarder",
     description: "Collect 50 golden cookies",
     icon: "<G>",
+    category: "special",
     check: (state) => state.goldenCookiesCollected >= 50,
   },
 ];
+
+// Combine base and extended achievements
+export const ACHIEVEMENTS = [...BASE_ACHIEVEMENTS, ...EXTENDED_ACHIEVEMENTS];
 
 // Helper function to calculate total upgrades owned
 function getTotalUpgrades(upgrades) {
