@@ -1,5 +1,6 @@
 // Prestige system composable for cookie clicker
 import { ref, computed, reactive } from "vue";
+import { useSound } from "./useSound.js";
 
 // Minimum cookies needed to prestige (1 billion)
 export const PRESTIGE_THRESHOLD = 1000000000;
@@ -25,6 +26,8 @@ export function calculatePrestigeMultiplier(prestigePoints, prestigeUpgrades) {
 }
 
 export function usePrestige(gameState) {
+  const { playSound } = useSound();
+
   // Prestige data
   const prestigeLevel = ref(gameState.prestigeLevel?.value ?? 0);
   const prestigePoints = ref(gameState.prestigePoints?.value ?? 0);
@@ -68,6 +71,8 @@ export function usePrestige(gameState) {
       gameState.prestigeLevel.value = prestigeLevel.value;
     }
     
+    playSound('prestige');
+    
     // Reset game (this will be called by the game)
     // gameState.resetGame();
     
@@ -82,6 +87,7 @@ export function usePrestige(gameState) {
     
     prestigePoints.value -= upgrade.cost;
     prestigeUpgrades[upgrade.id] = true;
+    playSound('buy');
     return true;
   }
   

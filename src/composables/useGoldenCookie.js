@@ -1,5 +1,6 @@
 import { ref, onUnmounted } from "vue";
 import confetti from "canvas-confetti";
+import { useSound } from "./useSound.js";
 
 // Golden cookie spawn configuration
 const MIN_SPAWN_INTERVAL = 60000; // 1 minute
@@ -8,6 +9,7 @@ const COOKIE_LIFETIME = 13000; // 13 seconds visible
 const GOLDEN_COOKIE_MULTIPLIER = 7; // 7x bonus for 77 seconds
 
 export function useGoldenCookie() {
+  const { playSound } = useSound();
   const isGoldenCookieActive = ref(false);
   const goldenCookiePosition = ref({ x: 0, y: 0 });
   const goldenCookieBonus = ref(1); // Current multiplier
@@ -25,6 +27,7 @@ export function useGoldenCookie() {
 
     goldenCookiePosition.value = { x, y };
     isGoldenCookieActive.value = true;
+    playSound('goldenSpawn');
 
     // Auto-despawn after lifetime expires
     despawnTimeout = setTimeout(() => {
@@ -43,6 +46,7 @@ export function useGoldenCookie() {
     if (!isGoldenCookieActive.value) return null;
 
     isGoldenCookieActive.value = false;
+    playSound('goldenCollect');
 
     // Clear despawn timeout
     if (despawnTimeout) {

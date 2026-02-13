@@ -1,5 +1,6 @@
 import { ref, reactive, computed, onUnmounted } from "vue";
 import confetti from "canvas-confetti";
+import { useSound } from "./useSound.js";
 import { UPGRADES, calculateUpgradeCost } from "../utils/upgradeConfig.js";
 import { 
   calculateCPSMultiplier, 
@@ -15,6 +16,8 @@ export const BASE_CLICK_POWER = 1;
 export const TICK_RATE = 100;
 
 export function useGameState(initialState = null) {
+  const { playSound } = useSound();
+
   // Core game state
   const cookieCount = ref(initialState?.cookieCount ?? 0);
   const totalCookiesEarned = ref(initialState?.totalCookiesEarned ?? 0);
@@ -96,6 +99,7 @@ export function useGameState(initialState = null) {
 
   // Handle manual cookie click (with optional multiplier for golden cookie)
   function clickCookie(multiplier = 1) {
+    playSound('click');
     const earned = clickPower.value * multiplier;
     cookieCount.value += earned;
     totalCookiesEarned.value += earned;
@@ -131,6 +135,7 @@ export function useGameState(initialState = null) {
     if (cookieCount.value >= cost) {
       cookieCount.value -= cost;
       upgrades[upgrade.id] = (upgrades[upgrade.id] || 0) + 1;
+      playSound('buy');
       return true;
     }
     return false;
@@ -144,6 +149,7 @@ export function useGameState(initialState = null) {
     
     cookieCount.value -= upgrade.cost;
     specialUpgrades[upgrade.id] = true;
+    playSound('buy');
 
     // Trigger confetti on special upgrade purchase
     confetti({
@@ -203,6 +209,7 @@ export function useGameState(initialState = null) {
   function unlockAchievement(achievement) {
     unlockedAchievementIds.value.add(achievement.id);
     newlyUnlockedAchievements.value.push(achievement);
+    playSound('achievement');
 
     // Trigger confetti on achievement unlock
     confetti({

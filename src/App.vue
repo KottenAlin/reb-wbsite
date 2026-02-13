@@ -4,7 +4,7 @@ import { useGameState } from "./composables/useGameState";
 import { useGoldenCookie } from "./composables/useGoldenCookie";
 import { UPGRADES, calculateUpgradeCost } from "./utils/upgradeConfig";
 import { ACHIEVEMENTS, checkAchievements } from "./utils/achievementConfig";
-import SausageSite from "./components/SausageSite.vue";
+import { useSound } from "./composables/useSound";
 
 // Navigation state
 const currentPage = ref("cookies");
@@ -16,6 +16,7 @@ const initialState = savedData ? JSON.parse(savedData) : null;
 
 const game = useGameState(initialState);
 const goldenCookie = useGoldenCookie();
+const { isMuted, toggleMute } = useSound();
 
 // Start game on mount
 onMounted(() => {
@@ -84,21 +85,13 @@ const formatCPS = (num) => num.toFixed(1);
 <template>
   <div class="site-wrapper">
     <nav class="main-nav">
-      <button
-        :class="{ active: currentPage === 'cookies' }"
-        @click="currentPage = 'cookies'"
-      >
-        Cookie Clicker
-      </button>
-      <button
-        :class="{ active: currentPage === 'sausages' }"
-        @click="currentPage = 'sausages'"
-      >
-        Sausage Sanctuary
+      <div class="nav-brand">Cookie Clicker</div>
+      <button class="mute-toggle" @click="toggleMute">
+        {{ isMuted ? "🔇 Muted" : "🔊 Sound On" }}
       </button>
     </nav>
 
-    <div v-if="currentPage === 'cookies'" class="game-container">
+    <div class="game-container">
       <header class="game-header">
         <h1>Cookie Clicker</h1>
         <div class="main-stats">
@@ -245,8 +238,6 @@ const formatCPS = (num) => num.toFixed(1);
         </div>
       </TransitionGroup>
     </div>
-
-    <SausageSite v-else-if="currentPage === 'sausages'" />
   </div>
 </template>
 
@@ -255,37 +246,39 @@ const formatCPS = (num) => num.toFixed(1);
    App Styles — Minimalist Design
    ============================================= */
 
-/* Navigation — clean, consistent, no decorative emojis */
+/* Navigation — clean, consistent */
 .main-nav {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
+  align-items: center;
   background: var(--color-surface);
-  padding: 0.75rem 1rem;
-  gap: 0.5rem;
+  padding: 0.75rem 2rem;
   border-bottom: 1px solid var(--color-border);
 }
 
-.main-nav button {
+.nav-brand {
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-size: 1.1rem;
+}
+
+.mute-toggle {
   background: none;
-  border: 1px solid transparent;
+  border: 1px solid var(--color-border);
   color: var(--color-text-secondary);
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
   padding: 0.5rem 1.25rem;
   border-radius: 6px;
-  transition: color 0.15s ease, background-color 0.15s ease;
+  transition: all 0.15s ease;
+  min-width: 120px;
 }
 
-.main-nav button:hover {
+.mute-toggle:hover {
   color: var(--color-text-primary);
   background: var(--color-surface-alt);
-}
-
-.main-nav button.active {
-  color: var(--color-accent);
-  background: var(--color-surface-alt);
-  border-color: var(--color-border);
+  border-color: var(--color-accent);
 }
 
 /* Game container — generous whitespace */
