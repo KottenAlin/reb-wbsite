@@ -1,4 +1,5 @@
 import { ref, onUnmounted } from "vue";
+import confetti from "canvas-confetti";
 
 // Golden cookie spawn configuration
 const MIN_SPAWN_INTERVAL = 60000; // 1 minute
@@ -48,6 +49,14 @@ export function useGoldenCookie() {
       clearTimeout(despawnTimeout);
       despawnTimeout = null;
     }
+
+    // Trigger golden confetti
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#FFD700', '#FFA500', '#FF8C00']
+    });
 
     // Activate bonus
     goldenCookieBonus.value = GOLDEN_COOKIE_MULTIPLIER;

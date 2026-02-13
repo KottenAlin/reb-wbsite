@@ -1,4 +1,5 @@
 import { ref, reactive, computed, onUnmounted } from "vue";
+import confetti from "canvas-confetti";
 import { UPGRADES, calculateUpgradeCost } from "../utils/upgradeConfig.js";
 import { 
   calculateCPSMultiplier, 
@@ -143,6 +144,15 @@ export function useGameState(initialState = null) {
     
     cookieCount.value -= upgrade.cost;
     specialUpgrades[upgrade.id] = true;
+
+    // Trigger confetti on special upgrade purchase
+    confetti({
+      particleCount: 80,
+      spread: 60,
+      origin: { y: 0.7 },
+      colors: ['#00ff00', '#00ffff', '#0000ff']
+    });
+
     return true;
   }
 
@@ -193,6 +203,14 @@ export function useGameState(initialState = null) {
   function unlockAchievement(achievement) {
     unlockedAchievementIds.value.add(achievement.id);
     newlyUnlockedAchievements.value.push(achievement);
+
+    // Trigger confetti on achievement unlock
+    confetti({
+      particleCount: 150,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ['#ff0000', '#ffa500', '#ffff00', '#008000', '#0000ff', '#4b0082', '#ee82ee']
+    });
   }
 
   // Clear newly unlocked achievements list
