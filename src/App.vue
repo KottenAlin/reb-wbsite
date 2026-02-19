@@ -86,6 +86,7 @@ const formatCPS = (num) => num.toFixed(1);
   <div class="site-wrapper">
     <nav class="main-nav">
       <div class="nav-brand">Cookie Clicker</div>
+      <a href="/sudoku.html" class="nav-link-sudoku">🧩 Sudoku</a>
       <button class="mute-toggle" @click="toggleMute">
         {{ isMuted ? "🔇 Muted" : "🔊 Sound On" }}
       </button>
@@ -260,6 +261,21 @@ const formatCPS = (num) => num.toFixed(1);
   font-weight: 600;
   color: var(--color-text-primary);
   font-size: 1.1rem;
+}
+
+.nav-link-sudoku {
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.nav-link-sudoku:hover {
+  color: var(--color-text-primary);
+  border-color: var(--color-accent);
 }
 
 .mute-toggle {
