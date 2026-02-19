@@ -5,6 +5,7 @@ import { useGoldenCookie } from "./composables/useGoldenCookie";
 import { UPGRADES, calculateUpgradeCost } from "./utils/upgradeConfig";
 import { ACHIEVEMENTS, checkAchievements } from "./utils/achievementConfig";
 import { useSound } from "./composables/useSound";
+import { useTheme } from "./composables/useTheme";
 
 // Navigation state
 const currentPage = ref("cookies");
@@ -17,9 +18,11 @@ const initialState = savedData ? JSON.parse(savedData) : null;
 const game = useGameState(initialState);
 const goldenCookie = useGoldenCookie();
 const { isMuted, toggleMute } = useSound();
+const { isDarkTheme, toggleTheme, initTheme } = useTheme();
 
 // Start game on mount
 onMounted(() => {
+  initTheme();
   game.startGame(() => goldenCookie.goldenCookieBonus.value);
   goldenCookie.startGoldenCookies();
 
@@ -87,6 +90,9 @@ const formatCPS = (num) => num.toFixed(1);
     <nav class="main-nav">
       <div class="nav-brand">Cookie Clicker</div>
       <a href="/sudoku.html" class="nav-link-sudoku">🧩 Sudoku</a>
+      <button class="theme-toggle" @click="toggleTheme">
+        {{ isDarkTheme ? "🌙 Dark" : "☀️ Light" }}
+      </button>
       <button class="mute-toggle" @click="toggleMute">
         {{ isMuted ? "🔇 Muted" : "🔊 Sound On" }}
       </button>
@@ -276,6 +282,10 @@ const formatCPS = (num) => num.toFixed(1);
 .nav-link-sudoku:hover {
   color: var(--color-text-primary);
   border-color: var(--color-accent);
+}
+
+.main-nav .theme-toggle {
+  margin-left: auto;
 }
 
 .mute-toggle {

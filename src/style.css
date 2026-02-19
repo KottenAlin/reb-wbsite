@@ -16,6 +16,7 @@
   --color-highlight: #d4a853;
   --color-danger: #a04040;
   --color-danger-hover: #b85555;
+  color-scheme: dark;
 
   /* Clear typography — system fonts */
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -28,6 +29,22 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+:root[data-theme="light"] {
+  --color-bg: #f5f5f5;
+  --color-surface: #ffffff;
+  --color-surface-alt: #ededed;
+  --color-border: #d0d0d0;
+  --color-text-primary: #222;
+  --color-text-secondary: #555;
+  --color-text-muted: #7a7a7a;
+  --color-accent: #3f7f61;
+  --color-accent-hover: #2f664d;
+  --color-highlight: #9b6b22;
+  --color-danger: #b24747;
+  --color-danger-hover: #9d3e3e;
+  color-scheme: light;
 }
 
 *,
@@ -49,6 +66,26 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+}
+
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0.5rem 1.25rem;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.theme-toggle:hover {
+  color: var(--color-text-primary);
+  background: var(--color-surface-alt);
+  border-color: var(--color-accent);
 }
 
 /* Functional hierarchy — clear heading scale */

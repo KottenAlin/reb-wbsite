@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed, reactive, onMounted, onUnmounted } from 'vue';
+import { useTheme } from '../composables/useTheme';
 
 // =============================================
 //  Sudoku puzzle logic
@@ -474,12 +475,14 @@ function cellStyle(idx) {
 // =============================================
 
 const canUndo = computed(() => history.value.length > 0);
+const { isDarkTheme, initTheme, toggleTheme } = useTheme();
 
 // =============================================
 //  Lifecycle
 // =============================================
 
 onMounted(() => {
+  initTheme();
   window.addEventListener('mouseup', handleMouseUp);
   window.addEventListener('keydown', handleKeyDown);
   newGame('medium');
@@ -497,6 +500,9 @@ onUnmounted(() => {
     <nav class="sudoku-nav">
       <a href="/" class="nav-back">← Cookie Clicker</a>
       <span class="nav-title">Sudoku</span>
+      <button class="theme-toggle" @click="toggleTheme">
+        {{ isDarkTheme ? "🌙 Dark" : "☀️ Light" }}
+      </button>
     </nav>
 
     <!-- Generating overlay -->
@@ -722,6 +728,8 @@ onUnmounted(() => {
   font-size: 1.2rem;
   letter-spacing: 0.05em;
 }
+
+.theme-toggle { margin-left: auto; }
 
 .sudoku-layout {
   display: flex;
