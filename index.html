@@ -5,8 +5,30 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cookie Clicker - The Sweetest Game</title>
+    <style>
+      .site-nav {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 1000;
+      }
+      .site-nav a {
+        padding: 0.5rem 1rem;
+        background: #444;
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: background 0.3s;
+      }
+      .site-nav a:hover {
+        background: #555;
+      }
+    </style>
   </head>
   <body>
+    <nav class="site-nav">
+      <a href="/sausage.html">🌭 Sausage Site</a>
+    </nav>
     <div id="app"></div>
     <script type="module" src="/src/main.js"></script>
   </body>
