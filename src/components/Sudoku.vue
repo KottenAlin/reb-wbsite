@@ -428,11 +428,34 @@ function applyColor(color) {
 //  Cell class helpers
 // =============================================
 
+const selectedDigitContext = computed(() => {
+  if (selectedCells.value.size !== 1) return null;
+  const [idx] = selectedCells.value;
+  const value = cells[idx]?.value;
+  return value ? { idx, value } : null;
+});
+
+function inSameUnit(a, b) {
+  const rowA = Math.floor(a / 9);
+  const colA = a % 9;
+  const rowB = Math.floor(b / 9);
+  const colB = b % 9;
+  const boxA = Math.floor(rowA / 3) * 3 + Math.floor(colA / 3);
+  const boxB = Math.floor(rowB / 3) * 3 + Math.floor(colB / 3);
+  return rowA === rowB || colA === colB || boxA === boxB;
+}
+
 function cellClass(idx) {
   const row = Math.floor(idx / 9);
   const col = idx % 9;
+  const context = selectedDigitContext.value;
+  const sameNumber = !!context && cells[idx].value === context.value;
+  const blockedForNumber = !!context && idx !== context.idx && !sameNumber && inSameUnit(idx, context.idx);
+
   return {
     'cell-selected': selectedCells.value.has(idx),
+    'cell-same-number': sameNumber,
+    'cell-blocked-number': blockedForNumber,
     'cell-given': cells[idx].given,
     'cell-error': cells[idx].isError,
     'box-right': col === 2 || col === 5,
@@ -663,6 +686,8 @@ onUnmounted(() => {
   --sudoku-selection: rgba(90, 168, 126, 0.28);
   --sudoku-error: rgba(160, 64, 64, 0.26);
   --sudoku-hover: rgba(255, 255, 255, 0.04);
+  --sudoku-same-number: rgba(90, 168, 126, 0.18);
+  --sudoku-blocked-number: rgba(160, 64, 64, 0.12);
   --sudoku-control-hover: var(--color-surface, #1e1e1e);
   --sudoku-accent-bg: rgba(90, 168, 126, 0.2);
   --sudoku-accent-bg-hover: rgba(90, 168, 126, 0.28);
@@ -740,6 +765,8 @@ onUnmounted(() => {
 }
 
 .cell:hover { background-color: var(--sudoku-hover); }
+.cell-same-number { background-color: var(--sudoku-same-number); }
+.cell-blocked-number { background-color: var(--sudoku-blocked-number); }
 .cell-selected { background-color: var(--sudoku-selection) !important; }
 .cell-error { background-color: var(--sudoku-error) !important; }
 
