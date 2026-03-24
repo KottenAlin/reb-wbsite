@@ -10,6 +10,7 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, "index.html"),
         sudoku: resolve(__dirname, "sudoku.html"),
+        notes: resolve(__dirname, "notes.html"),
       },
     },
   },

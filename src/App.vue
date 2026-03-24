@@ -90,6 +90,7 @@ const formatCPS = (num) => num.toFixed(1);
     <nav class="main-nav">
       <div class="nav-brand">Cookie Clicker</div>
       <a href="/sudoku.html" class="nav-link-sudoku">🧩 Sudoku</a>
+      <a href="/notes.html" class="nav-link-sudoku">📝 Notes</a>
       <button class="theme-toggle" @click="toggleTheme">
         {{ isDarkTheme ? "🌙 Dark" : "☀️ Light" }}
       </button>
